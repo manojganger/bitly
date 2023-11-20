@@ -50,9 +50,9 @@ python -m venv myenv
 .\myenv\Scripts\Activate
 #Read-Host -Prompt "Press any key to continue..."
 # Install pandas using pip
-pip install pandas
-pip install pytest
-pip install pylint
+pip install pandas --quiet
+pip install pytest --quiet
+pip install pylint --quiet
 
 $p = Get-Location
 Write-Host "current folder is: $p"
