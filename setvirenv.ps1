@@ -57,9 +57,11 @@ pip install pylint
 $p = Get-Location
 Write-Host "current folder is: $p"
 
-Copy-Item -Path ".\data" -Destination ".\myenv\data" -Recurse
-Copy-Item -Path ".\config" -Destination ".\myenv\config" -Recurse
-Copy-Item -Path ".\test" -Destination ".\myenv\test" -Recurse
+Copy-Item -Path ".\data" -Destination ".\myenv\data" -Recurse -Force
+Copy-Item -Path ".\config" -Destination ".\myenv\config" -Recurse -Force
+Copy-Item -Path ".\test" -Destination ".\myenv\test" -Recurse -Force
+Copy-Item ".\*.py" -Destination ".\myenv"
+
 
 python main.py
 
