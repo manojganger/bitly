@@ -1,20 +1,16 @@
-"""Analyse the clicks as per the encoding
+"""
+Analyse the clicks on the incoming datafiles for long url.
 
-This script allows the user to print to the console all columns in the
-spreadsheet. It is assumed that the first row of the spreadsheet is the
-location of the columns.
+This script loads two files and join it together to get the long_url and the clicks against it.
+Dups are checked and it gets warned in pytest. De-duping is not performed.
 
-This tool accepts comma separated value files (.csv) as well as excel
-(.xls, .xlsx) files.
+The two files are in json and csv format but are loaded into a pandas dataframe and then merged
+on the hash value. The hash value is extracted and two different methods are used to ensure that it alerts in case specs changes.
 
-This script requires that `pandas` be installed within the Python
-environment you are running this script in.
+Analysis is performed on the merged dataframe.
 
-This file can also be imported as a module and contains the following
-functions:
+The results are displayed on to the stdout.
 
-    * get_spreadsheet_cols - returns the column headers of the file
-    * main - the main function of the script
 """
 
 import pandas as pd
@@ -23,8 +19,6 @@ import time
 import configparser
 import sys
 import os
-
-#sys.path.append(r'C:\Users\manoj\code\bitly')
 
 def parse_for_hash(short_url):
     """This method parse the hash value from the shortened url
@@ -38,30 +32,48 @@ def parse_for_hash(short_url):
         -------
         rightmost 7 chars of short_url
             
-        """
-    return short_url[-7:]   #could be more so use s[s.rfind('/')+1:len(s)]
+    """
+    return short_url[-7:]   #could be different so use s[s.rfind('/')+1:len(s)]
 
 def read_config():
+    """This method reads configuration setting in config/config.ini
+
+        Parameters
+        ----------
+        None
+
+
+        Returns
+        -------
+        dict of the parameters
+
+    """
     config = configparser.ConfigParser()
 
-    config.read(r'C:\Users\manoj\code\bitly\myenv\config\config.ini')
+    config.read(r'config\config.ini')
 
     config_dict = config['BITLY']
 
     return config_dict
 
 
-
 def read_datafiles(val):
+    """This method reads incoming datafiles (json and csv)
+
+        Parameters
+        ----------
+        configuration parameters : dict
 
 
+        Returns
+        -------
+        the two dataframes decode and encode (in that order): DataFrame
+
+    """
     chunk_size = 50000
 
-    file_path_decode = val.get('pathfile_decode','yyyy')
-    file_path_encode = val.get('pathfile_encode','yyyy')
-
-    
-
+    file_path_decode = val.get('pathfile_decode','data/decodes.json')
+    file_path_encode = val.get('pathfile_encode','data/encodes.csv')
 
     data_list_decode = []
     data_list_encode = []
@@ -91,7 +103,20 @@ def read_datafiles(val):
     # 2 put having clause for 2021
 
 def analyse_datafiles(df_decode, df_encode):
-    # parse the column bitlink
+    """This method analyse the two dataframe for click counts
+
+            Parameters
+            ----------
+            decode dataframe : DataFrame
+            encode dataframe : DataFrame
+
+
+            Returns
+            -------
+            merged dataframe: DataFrame
+
+    """
+    # parse the column bitlink and create a new column 'hash'
     df_decode['hash']=df_decode['bitlink'].apply(parse_for_hash)
 
     print(df_encode)
@@ -110,6 +135,19 @@ def analyse_datafiles(df_decode, df_encode):
     return res
 
 def display_results(res):
+    """This method displays the output on console as per the format
+
+            Parameters
+            ----------
+            df_merged  : DataFrame
+
+
+
+            Returns
+            -------
+            None
+
+    """
 
     #groupby long_url and get the counts
     res1=res[['long_url']].value_counts().reset_index(name='counts')
@@ -122,26 +160,14 @@ def display_results(res):
 
     print([(dict(zip(res3.long_url, res3.counts)))])
 
-# Press the green button in the gutter to run the script.
+
 if __name__ == '__main__':
+    #time the whole process
     start = time.time()
     config_dict = read_config()
-    
     df_decode, df_encode = read_datafiles(config_dict)
-    res=analyse_datafiles(df_decode, df_encode)
-    display_results(res)
-
-
-
+    df_merged = analyse_datafiles(df_decode, df_encode)
+    display_results(df_merged)
 
     print(f"\n\nThe process took {round(time.time()-start,2)} secs")
 
-"""
-readme.md
-
-First Step to install and run this program.
-git clone <url> (clone the repo in your desired folder
-On windows :rightclick and select run powershell on the ps script you would have 
-the ps script will install the dependencies and then copy the source code into the virtual env and run it and then deactivate it.
-the output will be produced on the console and pause for a look.
-"""
