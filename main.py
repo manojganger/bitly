@@ -69,7 +69,7 @@ def read_datafiles(val):
         the two dataframes decode and encode (in that order): DataFrame
 
     """
-    chunk_size = 50000
+    chunk_size = int(val.get('read_chunksize', 10000))
 
     file_path_decode = val.get('pathfile_decode','data/decodes.json')
     file_path_encode = val.get('pathfile_encode','data/encodes.csv')
@@ -139,8 +139,6 @@ def display_results(df_merged):
             Parameters
             ----------
             df_merged  : DataFrame
-
-
 
             Returns
             -------
