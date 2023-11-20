@@ -23,61 +23,45 @@ import time
 import configparser
 import sys
 import os
-sys.path.append(r'C:\Users\manoj\code\bitly')
-def parse_for_hash(s):
-    """Gets and prints the spreadsheet's header columns
+
+#sys.path.append(r'C:\Users\manoj\code\bitly')
+
+def parse_for_hash(short_url):
+    """This method parse the hash value from the shortened url
 
         Parameters
         ----------
-        file_loc : str
-            The file location of the spreadsheet
-        print_cols : bool, optional
-            A flag used to print the columns to the console (default is
-            False)
+        short_url : str
+            The short url which contains hash value. It is assumed that it would be 7 char long but if it changes, it would be detected by pytest
 
         Returns
         -------
-        list
-            a list of strings used that are the header columns
+        rightmost 7 chars of short_url
+            
         """
-    return s[-7:]   #could be more so use s[s.rfind('/')+1:len(s)]
-def print_hi(name):
+    return short_url[-7:]   #could be more so use s[s.rfind('/')+1:len(s)]
+
+def read_config():
     config = configparser.ConfigParser()
 
     config.read(r'C:\Users\manoj\code\bitly\myenv\config\config.ini')
 
-    val = config['BITLY']
+    config_dict = config['BITLY']
+
+    return config_dict
 
 
-    # print(os.getcwd())
-    # print(os.path.abspath(__file__))
-    #
-    # os.chdir(r"C:\Users\manoj\code\bitly")
-    #
-    # print(os.getcwd())
 
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def read_datafiles(val):
+
+
     chunk_size = 50000
-    #file_path_decode = r"C:\Users\manoj\code\bitly\myenv\data\decodes.json"
-    #file_path_encode = r"C:\Users\manoj\code\bitly\myenv\data\encodes.csv"
 
     file_path_decode = val.get('pathfile_decode','yyyy')
     file_path_encode = val.get('pathfile_encode','yyyy')
 
     
 
-
-    absolute_path = os.path.dirname(os.path.abspath(__file__))
-    print(f"absolute path is = {absolute_path}")
-
-    #file_path_decode = r'{}'.format(os.path.join(absolute_path, val.get('pathfile_decode','yyyy')))
-    #file_path_encode = r'{}'.format(os.path.join(absolute_path, val.get('pathfile_encode','zzz')))
-    
-    print(f"full path is = {file_path_decode}")
-    print(f"full path is = {file_path_encode}")
-
-    print(val.get('pathfile_decode','yyyy'))
 
     data_list_decode = []
     data_list_encode = []
@@ -95,31 +79,8 @@ def print_hi(name):
     df_encode = pd.DataFrame(data_list_encode)
 
 
-    # Display the DataFrame
-    df_decode['hash']=df_decode['bitlink'].apply(parse_for_hash)
 
-    print(df_encode)
-
-
-    print(df_decode.head())
-
-    res = pd.merge(df_decode,df_encode, on='hash', how='left')
-    print(res[['bitlink', 'hash', 'long_url']])
-
-    res['dt']=pd.to_datetime(res['timestamp'])
-    print(res)
-
-
-    res1=res[['long_url']].value_counts().reset_index(name='counts')
-
-    print([(dict(zip(res1.long_url, res1.counts)))])
-
-    res2=res[(res['dt'] >= '2021-01-01') & (res['dt'] <= '2021-12-31')]
-    res3 = res2[['long_url']].value_counts().reset_index(name='counts')
-
-    print([(dict(zip(res3.long_url, res3.counts)))])
-
-
+    return df_decode, df_encode
 
 
 
@@ -129,25 +90,51 @@ def print_hi(name):
     # 1 join and group by long_url and count the click on it.
     # 2 put having clause for 2021
 
+def analyse_datafiles(df_decode, df_encode):
+    # parse the column bitlink
+    df_decode['hash']=df_decode['bitlink'].apply(parse_for_hash)
+
+    print(df_encode)
+
+
+    print(df_decode.head())
+
+
+    #join the df on hash and get the 
+    res = pd.merge(df_decode,df_encode, on='hash', how='left')
+    print(res[['bitlink', 'hash', 'long_url']])
+
+    res['dt']=pd.to_datetime(res['timestamp'])
+    print(res)
+
+    return res
+
+def display_results(res):
+
+    #groupby long_url and get the counts
+    res1=res[['long_url']].value_counts().reset_index(name='counts')
+    #convert the dataframe to list of dict 
+    print([(dict(zip(res1.long_url, res1.counts)))])
+
+    #filter only rows belonging to 2021
+    df_2021 = res[(res['dt'] >= '2021-01-01') & (res['dt'] <= '2021-12-31')]
+    res3 = df_2021[['long_url']].value_counts().reset_index(name='counts')
+
+    print([(dict(zip(res3.long_url, res3.counts)))])
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     start = time.time()
-    print_hi('PyCharm')
-
-
-    #read both the files and returns df
-
-    #extract hash value.
-    #mergre the two dataframe and return the result
-
-    #filter the dataframe and return the results
-
-    #do the print of that.
+    config_dict = read_config()
+    
+    df_decode, df_encode = read_datafiles(config_dict)
+    res=analyse_datafiles(df_decode, df_encode)
+    display_results(res)
 
 
 
-    print(time.time()-start)
+
+    print(f"\n\nThe process took {round(time.time()-start,2)} secs")
 
 """
 readme.md
