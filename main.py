@@ -118,20 +118,17 @@ def analyse_datafiles(df_decode, df_encode):
     # parse the column bitlink and create a new column 'hash'
     df_decode['hash']=df_decode['bitlink'].apply(parse_for_hash)
 
-    print(df_encode)
-
-
-    print(df_decode.head())
-
+    #print(df_encode)
+    #print(df_decode.head())
 
     #join the df on hash and get the
-    res = pd.merge(df_decode,df_encode, on='hash', how='left')
-    print(res[['bitlink', 'hash', 'long_url']])
+    df_merged = pd.merge(df_decode,df_encode, on='hash', how='left')
+    #print(df_merged[['bitlink', 'hash', 'long_url']])
 
-    res['dt']=pd.to_datetime(res['timestamp'])
-    print(res)
+    df_merged['dt']=pd.to_datetime(df_merged['timestamp'])
+    #print(df_merged)
 
-    return res
+    return df_merged
 
 def display_results(df_merged):
     """This method displays the output on console as per the format
@@ -150,12 +147,13 @@ def display_results(df_merged):
     df_clicks = df_merged[['long_url']].value_counts().reset_index(name='counts')
 
     #convert the dataframe to list of dict
+    print("\n\nClicks for each long url excluding non encoded")
     print([(dict(zip(df_clicks.long_url, df_clicks.counts)))])
 
     #filter only rows belonging to 2021
     df_2021 = df_merged[(df_merged['dt'] >= '2021-01-01') & (df_merged['dt'] <= '2021-12-31')]
     df_clicks_2021 = df_2021[['long_url']].value_counts().reset_index(name='counts')
-
+    print("\n\nClicks which are for year 2021")
     print([(dict(zip(df_clicks_2021.long_url, df_clicks_2021.counts)))])
 
 
