@@ -19,13 +19,13 @@ if (-not $pythonExecutable) {
 
     $installedVersion = $installedVersion -match '(\d+)' ; $matches[1]
 
-Read-Host -Prompt "Press any key to continue..."
+#Read-Host -Prompt "Press any key to continue..."
     Write-Host "Installed Python version: $installedVersion"
-Read-Host -Prompt "Press any key to continue..."
+#Read-Host -Prompt "Press any key to continue..."
 
     Write-Host "Minimum required Python version: $minimumVersion"
 
-Read-Host -Prompt "Press any key to continue..."
+#Read-Host -Prompt "Press any key to continue..."
 
     if ($installedVersion -ge $minimumVersion) {
         Write-Host "Python is already installed. Version meets the requirements."
@@ -41,14 +41,14 @@ Read-Host -Prompt "Press any key to continue..."
 
 $gp = Get-Location
 Write-Host "current git folder is: $gp"
-Read-Host -Prompt "Press any key to continue..."
+#Read-Host -Prompt "Press any key to continue..."
 
 
 # Create a virtual environment
 python -m venv myenv
 # Activate the virtual environment
 .\myenv\Scripts\Activate
-Read-Host -Prompt "Press any key to continue..."
+#Read-Host -Prompt "Press any key to continue..."
 # Install pandas using pip
 pip install pandas
 pip install pytest
@@ -57,12 +57,28 @@ pip install pylint
 $p = Get-Location
 Write-Host "current folder is: $p"
 
-Copy-Item -Path ".\data" -Destination ".\myenv\data" -Recurse -Force
-Copy-Item -Path ".\config" -Destination ".\myenv\config" -Recurse -Force
-Copy-Item -Path ".\test" -Destination ".\myenv\test" -Recurse -Force
+Copy-Item -Path ".\data" -Destination ".\myenv\" -Recurse -Force
+Copy-Item -Path ".\config" -Destination ".\myenv\" -Recurse -Force
+Copy-Item -Path ".\test" -Destination ".\myenv\" -Recurse -Force
 Copy-Item ".\*.py" -Destination ".\myenv"
 
+cd myenv
+$p = Get-Location
+Write-Host "current folder is======: $p"
+$pytestPath = "./test/test_main.py"
+#pytest ./test/test_main.py
 
+$result = Invoke-Expression -Command "pytest $pytestPath"
+if ($? -eq "True") {
+    Write-Host "Tests passed successfully!"
+} else {
+    Write-Host "Tests failed. Return value: $result"
+}
+
+
+
+
+Read-Host -Prompt "Press any key to continue..."
 python main.py
 
 Read-Host -Prompt "Press any key to continue..."
@@ -70,7 +86,7 @@ Read-Host -Prompt "Press any key to continue..."
 
 
 
-Read-Host -Prompt "Press any key to continue..."
+#Read-Host -Prompt "Press any key to continue..."
 # Deactivate the virtual environment
 deactivate
 

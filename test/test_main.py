@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1,r'C:\Users\manoj\code\bitly')
+sys.path.insert(1,r'C:\Users\manoj\code\bitly\myenv')
 
 from ..main import parse_for_hash
 
