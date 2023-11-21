@@ -47,11 +47,13 @@ def read_config():
         dict of the parameters
 
     """
-    config = configparser.ConfigParser()
-
-    config.read(r'config\config.ini')
-
-    config_dict = config['BITLY']
+    try:
+        config = configparser.ConfigParser()
+        config.read(r'config\config.ini')
+        config_dict = config['BITLY']
+    except KeyError:
+        print(f"Not able to find BITLY section in config.ini")
+        exit(-1)
 
     return config_dict
 
@@ -89,17 +91,7 @@ def read_datafiles(val):
     df_decode = pd.DataFrame(data_list_decode)
     df_encode = pd.DataFrame(data_list_encode)
 
-
-
     return df_decode, df_encode
-
-
-
-    #dq check - make sure encode is unique
-    #chk for dup in decode
-
-    # 1 join and group by long_url and count the click on it.
-    # 2 put having clause for 2021
 
 def analyse_datafiles(df_decode, df_encode):
     """This method analyse the two dataframe for click counts
@@ -153,6 +145,7 @@ def display_results(df_merged):
     #filter only rows belonging to 2021
     df_2021 = df_merged[(df_merged['dt'] >= '2021-01-01') & (df_merged['dt'] <= '2021-12-31')]
     df_clicks_2021 = df_2021[['long_url']].value_counts().reset_index(name='counts')
+
     print("\n\nClicks which are for year 2021")
     print([(dict(zip(df_clicks_2021.long_url, df_clicks_2021.counts)))])
 
