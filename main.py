@@ -15,6 +15,7 @@ The results are displayed on to the stdout.
 """
 
 import time
+import sys
 import configparser
 import pandas as pd
 
@@ -52,8 +53,8 @@ def read_config():
         config.read(r'config\config.ini')
         config_dict = config['BITLY']
     except KeyError:
-        print(f"Not able to find BITLY section in config.ini")
-        exit(-1)
+        print("Not able to find BITLY section in config.ini")
+        sys.exit(-1)
 
     return config_dict
 
