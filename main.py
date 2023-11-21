@@ -140,14 +140,15 @@ def display_results(df_merged):
     df_clicks = df_merged[['long_url']].value_counts().reset_index(name='counts')
 
     #convert the dataframe to list of dict
-    print("\n\nClicks for each long url excluding non encoded")
+    print("\n\nClicks for each long url excluding non-encoded")
     print([(dict(zip(df_clicks.long_url, df_clicks.counts)))])
 
     #filter only rows belonging to 2021
     df_2021 = df_merged[(df_merged['dt'] >= '2021-01-01') & (df_merged['dt'] <= '2021-12-31')]
     df_clicks_2021 = df_2021[['long_url']].value_counts().reset_index(name='counts')
 
-    print("\n\nClicks which are for year 2021")
+    print(f"\n\nClicks which are for year 2021 = {df_2021['long_url'].count()}")
+    print("Broken down as per the encode file below excluding non-encoded")
     print([(dict(zip(df_clicks_2021.long_url, df_clicks_2021.counts)))])
 
 
